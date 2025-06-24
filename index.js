@@ -1,4 +1,3 @@
-// index.js
 const express = require('express');
 const { pool } = require('./database/database'); 
 const app     = express();
