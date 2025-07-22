@@ -1,34 +1,32 @@
 const express = require('express');
-const { pool } = require('./database/database'); 
+const path = require('path');
+const cookieParser = require('cookie-parser');
+global.jwt = require('jsonwebtoken');
+
+const { pool } = require('./database/database');
+const user_Mid = require("./middleware/user_Mid");
+const auth_R = require('./Routers/auth');
+const categories_R = require('./Routers/categories');
+const tasks_R = require('./Routers/tasks');
+
 const app = express();
-const session = require('express-session');
-const authRoutes = require('./Routers/auth');
 
+app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+app.use(cookieParser());
 
-app.use(session({
-  secret: 'your-secret-key-change-this-in-production',
-  resave: false,
-  saveUninitialized: false,
-  cookie: { secure: false, maxAge: 24 * 60 * 60 * 1000 }
-}));
+app.set("view engine", "ejs");
+app.set('views', path.join(__dirname, "./views"));
 
-app.set('view engine', 'ejs');
-app.set('views', __dirname + '/views');
+app.use('/', auth_R);
+app.use('/categories', [user_Mid.isLogged], categories_R);
+app.use('/tasks', [user_Mid.isLogged], tasks_R);
 
-app.use('/', authRoutes);
+app.get('/', (req, res) => {
+    res.redirect('/login');
+});
 
-(async () => {
-  try {
-    const promisePool = pool.promise();
-    const [r] = await promisePool.query('SELECT 1');
-    console.log('DB OK');
-  } catch (e) {
-    console.error('DB ERROR', e.message);
-  }
-})();
-
-const PORT = 7777;
-app.listen(PORT, () => {
-  console.log(`Server listening at http://localhost:${PORT}`);
+const port = 7777;
+app.listen(port, () => {
+    console.log(`Now listening on port http://localhost:${port}`);
 });
