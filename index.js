@@ -1,11 +1,22 @@
-// index.js
 const express = require('express');
 const { pool } = require('./database/database'); 
-const app     = express();
+const app = express();
+const session = require('express-session');
+const authRoutes = require('./Routers/auth');
 
 app.use(express.urlencoded({ extended: false }));
+
+app.use(session({
+  secret: 'your-secret-key-change-this-in-production',
+  resave: false,
+  saveUninitialized: false,
+  cookie: { secure: false, maxAge: 24 * 60 * 60 * 1000 }
+}));
+
 app.set('view engine', 'ejs');
 app.set('views', __dirname + '/views');
+
+app.use('/', authRoutes);
 
 (async () => {
   try {
@@ -16,10 +27,6 @@ app.set('views', __dirname + '/views');
     console.error('DB ERROR', e.message);
   }
 })();
-
-app.get('/', (req, res) => {
-  res.send('hello');
-});
 
 const PORT = 7777;
 app.listen(PORT, () => {

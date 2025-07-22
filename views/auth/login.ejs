@@ -1,0 +1,13 @@
+<%- include('../layout') %>
+<div class="container">
+  <h2>התחברות</h2>
+  <% if (error) { %>
+    <div style="color:red"><%= error %></div>
+  <% } %>
+  <form method="POST" action="/login">
+    <input type="text" name="username" placeholder="שם משתמש" required><br>
+    <input type="password" name="password" placeholder="סיסמה" required><br>
+    <button type="submit">התחבר</button>
+  </form>
+  <a href="/register">להרשמה</a>
+</div>

@@ -1,0 +1,159 @@
+<%- include('layout') %>
+
+<div class="row mb-4">
+    <div class="col-12">
+        <h2 class="mb-3">
+            <i class="fas fa-tachometer-alt me-2"></i>דף הבית
+        </h2>
+    </div>
+</div>
+
+<!-- סטטיסטיקות -->
+<div class="row mb-4">
+    <div class="col-md-3 mb-3">
+        <div class="card stats-card">
+            <div class="card-body text-center">
+                <i class="fas fa-tasks fa-2x mb-2"></i>
+                <div class="stats-number"><%= stats.totalTasks %></div>
+                <div>סה"כ משימות</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-3">
+        <div class="card stats-card">
+            <div class="card-body text-center">
+                <i class="fas fa-check-circle fa-2x mb-2"></i>
+                <div class="stats-number"><%= stats.completedTasks %></div>
+                <div>משימות בוצעו</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-3">
+        <div class="card stats-card">
+            <div class="card-body text-center">
+                <i class="fas fa-clock fa-2x mb-2"></i>
+                <div class="stats-number"><%= stats.pendingTasks %></div>
+                <div>משימות ממתינות</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-3">
+        <div class="card stats-card">
+            <div class="card-body text-center">
+                <i class="fas fa-folder fa-2x mb-2"></i>
+                <div class="stats-number"><%= stats.categories %></div>
+                <div>קטגוריות</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- פעולות מהירות -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">
+                    <i class="fas fa-bolt me-2"></i>פעולות מהירות
+                </h5>
+                <div class="row">
+                    <div class="col-md-3 mb-2">
+                        <a href="/tasks/create" class="btn btn-primary w-100">
+                            <i class="fas fa-plus me-2"></i>משימה חדשה
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <a href="/categories/create" class="btn btn-success w-100">
+                            <i class="fas fa-folder-plus me-2"></i>קטגוריה חדשה
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <a href="/tasks" class="btn btn-info w-100">
+                            <i class="fas fa-list me-2"></i>כל המשימות
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <a href="/categories" class="btn btn-warning w-100">
+                            <i class="fas fa-folder me-2"></i>ניהול קטגוריות
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- משימות קרובות -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-calendar-alt me-2"></i>משימות קרובות
+                </h5>
+            </div>
+            <div class="card-body">
+                <% if (upcomingTasks.length === 0) { %>
+                    <div class="text-center text-muted py-4">
+                        <i class="fas fa-check-circle fa-3x mb-3"></i>
+                        <p>אין משימות ממתינות! כל המשימות בוצעו.</p>
+                    </div>
+                <% } else { %>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>תיאור</th>
+                                    <th>קטגוריה</th>
+                                    <th>תאריך יעד</th>
+                                    <th>פעולות</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% upcomingTasks.forEach(task => { %>
+                                    <tr>
+                                        <td><%= task.description %></td>
+                                        <td>
+                                            <span class="badge bg-secondary"><%= task.category_name %></span>
+                                        </td>
+                                        <td>
+                                            <% 
+                                                const dueDate = new Date(task.due_date);
+                                                const today = new Date();
+                                                const isOverdue = dueDate < today;
+                                            %>
+                                            <span class="<%= isOverdue ? 'task-overdue' : '' %>">
+                                                <%= dueDate.toLocaleDateString('he-IL') %>
+                                                <% if (isOverdue) { %>
+                                                    <i class="fas fa-exclamation-triangle text-danger ms-1"></i>
+                                                <% } %>
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <form method="POST" action="/tasks/toggle/<%= task.id %>" class="d-inline">
+                                                <button type="submit" class="btn btn-success btn-sm">
+                                                    <i class="fas fa-check"></i> בוצע
+                                                </button>
+                                            </form>
+                                            <a href="/tasks/edit/<%= task.id %>" class="btn btn-primary btn-sm ms-1">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                <% }); %>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="text-center mt-3">
+                        <a href="/tasks" class="btn btn-outline-primary">
+                            <i class="fas fa-eye me-2"></i>צפה בכל המשימות
+                        </a>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+    </div>
+</div> 
