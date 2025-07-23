@@ -1,0 +1,23 @@
+<%- include('../layout') %>
+<h2>קטגוריות</h2>
+<a href="/categories/create">הוסף קטגוריה</a>
+<table>
+  <tr>
+    <th>שם</th>
+    <th>עריכה</th>
+    <th>מחיקה</th>
+  </tr>
+  <% categories.forEach(category => { %>
+    <tr>
+      <td><%= category.name %></td>
+      <td>
+        <a href="/categories/edit/<%= category.id %>">ערוך</a>
+      </td>
+      <td>
+        <form method="POST" action="/categories/delete/<%= category.id %>" style="display:inline;">
+          <button type="submit" onclick="return confirm('למחוק?')">מחק</button>
+        </form>
+      </td>
+    </tr>
+  <% }) %>
+</table>

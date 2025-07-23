@@ -1,0 +1,10 @@
+<%- include('../layout') %>
+<h2>עריכת קטגוריה</h2>
+<% if (error) { %>
+  <div style="color:red"><%= error %></div>
+<% } %>
+<form method="POST" action="/categories/edit/<%= category.id %>">
+  <input type="text" name="name" value="<%= category.name %>" required>
+  <button type="submit">עדכן</button>
+</form>
+<a href="/categories">חזרה</a>
