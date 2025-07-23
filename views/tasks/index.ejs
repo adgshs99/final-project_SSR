@@ -1,43 +1,46 @@
-<!doctype html>
-<html lang="he">
-<head>
-    <meta charset="UTF-8">
-    <title>רשימת משימות</title>
-</head>
-<body>
-    <h1>רשימת משימות</h1>
-    <a href="/tasks/create">הוסף משימה</a>
-    <table border="1">
-        <tr>
-            <th>תיאור</th>
-            <th>תאריך יעד</th>
-            <th>קטגוריה</th>
-            <th>בוצע</th>
-            <th>עריכה</th>
-            <th>מחיקה</th>
-        </tr>
-        <% for(var i=0; i<tasks.length; i++) { %>
-            <tr>
-                <td><%= tasks[i].description %></td>
-                <td><%= tasks[i].due_date %></td>
-                <td><%= tasks[i].category_name %></td>
-                <td>
-                    <% if (tasks[i].is_done) { %>
-                        כן
-                    <% } else { %>
-                        לא
-                    <% } %>
-                </td>
-                <td>
-                    <a href="/tasks/edit/<%= tasks[i].id %>">ערוך</a>
-                </td>
-                <td>
-                    <form method="POST" action="/tasks/delete/<%= tasks[i].id %>" style="display:inline;">
-                        <button type="submit">מחק</button>
-                    </form>
-                </td>
-            </tr>
+<h2>רשימת משימות</h2>
+<a href="/tasks/create">הוסף משימה</a>
+<table border="1">
+  <tr>
+    <th>תיאור</th>
+    <th>תאריך יעד</th>
+    <th>קטגוריה</th>
+    <th>בוצע</th>
+    <th>עריכה</th>
+    <th>מחיקה</th>
+  </tr>
+  <% for(var i=0; i<tasks.length; i++) { %>
+    <tr>
+      <td><%= tasks[i].description %></td>
+      <td><%= tasks[i].due_date %></td>
+      <td><%= tasks[i].category_name %></td>
+      <td>
+        <% if (tasks[i].is_done) { %>
+          כן
+        <% } else { %>
+          לא
         <% } %>
-    </table>
-</body>
-</html>
+      </td>
+      <td>
+        <a href="/tasks/edit/<%= tasks[i].id %>">ערוך</a>
+      </td>
+      <td>
+        <form method="POST" action="/tasks/delete/<%= tasks[i].id %>" style="display:inline;">
+          <button type="submit" onclick="return confirm('למחוק?')">מחק</button>
+        </form>
+      </td>
+    </tr>
+  <% } %>
+</table>
+
+<div>
+  <% if (typeof page !== 'undefined' && typeof totalPages !== 'undefined') { %>
+    <% if (page > 1) { %>
+      <a href="/tasks?page=<%= page - 1 %>">הקודם</a>
+    <% } %>
+    עמוד <%= page %> מתוך <%= totalPages %>
+    <% if (page < totalPages) { %>
+      <a href="/tasks?page=<%= page + 1 %>">הבא</a>
+    <% } %>
+  <% } %>
+</div>
