@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="he">
+<head>
+    <meta charset="UTF-8">
+    <title>עריכת משימה</title>
+</head>
+<body>
+    <h1>עריכת משימה</h1>
+    <% if (error) { %>
+        <div style="color:red"><%= error %></div>
+    <% } %>
+    <form action="/tasks/edit/<%= task.id %>" method="post">
+        <label for="desc">תיאור משימה</label>
+        <input type="text" name="description" id="desc" value="<%= task.description %>">
+        <br>
+        <label for="due">תאריך יעד</label>
+        <input type="date" name="due_date" id="due" value="<%= task.due_date %>">
+        <br>
+        <label for="cat">קטגוריה</label>
+        <select name="category_id" id="cat">
+            <% for(var i=0; i<categories.length; i++) { %>
+                <% if (categories[i].id == task.category_id) { %>
+                    <option value="<%= categories[i].id %>" selected><%= categories[i].name %></option>
+                <% } else { %>
+                    <option value="<%= categories[i].id %>"><%= categories[i].name %></option>
+                <% } %>
+            <% } %>
+        </select>
+        <br>
+        <label>
+            <input type="checkbox" name="is_done" value="1" <%= task.is_done ? 'checked' : '' %>> בוצע
+        </label>
+        <br>
+        <button>עדכן</button>
+    </form>
+    <a href="/tasks">חזרה לרשימת משימות</a>
+</body>
+</html>
