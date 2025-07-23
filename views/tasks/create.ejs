@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="he">
+<head>
+    <meta charset="UTF-8">
+    <title>הוספת משימה</title>
+</head>
+<body>
+    <h1>הוספת משימה</h1>
+    <% if (error) { %>
+        <div style="color:red"><%= error %></div>
+    <% } %>
+    <form action="/tasks/create" method="post">
+        <label for="desc">תיאור משימה</label>
+        <input type="text" name="description" id="desc">
+        <br>
+        <label for="due">תאריך יעד</label>
+        <input type="date" name="due_date" id="due">
+        <br>
+        <label for="cat">קטגוריה</label>
+        <select name="category_id" id="cat">
+            <% for(var i=0; i<categories.length; i++) { %>
+                <option value="<%= categories[i].id %>"><%= categories[i].name %></option>
+            <% } %>
+        </select>
+        <br>
+        <button>שמור</button>
+    </form>
+    <a href="/tasks">חזרה לרשימת משימות</a>
+</body>
+</html>
