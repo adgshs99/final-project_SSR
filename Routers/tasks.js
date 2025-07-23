@@ -4,9 +4,23 @@ const { pool } = require('../database/database');
 
 router.get('/', (req, res) => {
   const userId = req.user_id;
-  const sql = "SELECT t.*, c.name as category_name FROM tasks t LEFT JOIN categories c ON t.category_id = c.id WHERE t.user_id = " + userId + " ORDER BY t.due_date ASC";
-  pool.query(sql, (err, results) => {
-    res.render('tasks/index', { tasks: results });
+  let page = 1;
+  if (req.query.page) {
+    page = parseInt(req.query.page);
+    if (isNaN(page) || page < 1) page = 1;
+  }
+  const perPage = 10;
+  const offset = (page - 1) * perPage;
+
+  const sqlCount = "SELECT COUNT(*) as count FROM tasks WHERE user_id = " + userId;
+  pool.query(sqlCount, (err, countResult) => {
+    const totalTasks = countResult[0].count;
+    const totalPages = Math.ceil(totalTasks / perPage);
+
+    const sql = "SELECT t.*, c.name as category_name FROM tasks t LEFT JOIN categories c ON t.category_id = c.id WHERE t.user_id = " + userId + " ORDER BY t.due_date ASC LIMIT " + perPage + " OFFSET " + offset;
+    pool.query(sql, (err, results) => {
+      res.render('tasks/index', { tasks: results, page, totalPages });
+    });
   });
 });
 

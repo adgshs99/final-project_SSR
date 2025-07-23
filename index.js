@@ -8,6 +8,7 @@ const { pool } = require('./database/database');
 const user_Mid = require("./middleware/user_Mid");
 const auth_R = require('./Routers/auth');
 const categories_R = require('./Routers/categories');
+const tasks_R = require('./Routers/tasks'); // הוספת ראוטר למשימות
 
 const app = express();
 
@@ -20,6 +21,7 @@ app.set('views', path.join(__dirname, "./views"));
 
 app.use('/', auth_R);
 app.use('/categories', user_Mid.isLogged, categories_R);
+app.use('/tasks', user_Mid.isLogged, tasks_R); // הוספת ניתוב למשימות עם הגנה
 
 app.get('/', (req, res) => {
     res.redirect('/login');
