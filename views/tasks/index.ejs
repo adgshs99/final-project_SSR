@@ -1,5 +1,27 @@
 <h2>רשימת משימות</h2>
 <a href="/tasks/create">הוסף משימה</a>
+
+<form method="get" action="/tasks" style="margin: 10px 0;">
+  <label>סטטוס:
+    <select name="status">
+      <option value="">הכל</option>
+      <option value="done" <%= (typeof status !== 'undefined' && status === 'done') ? 'selected' : '' %>>בוצע</option>
+      <option value="notdone" <%= (typeof status !== 'undefined' && status === 'notdone') ? 'selected' : '' %>>לא בוצע</option>
+    </select>
+  </label>
+  <label>קטגוריה:
+    <select name="category">
+      <option value="">הכל</option>
+      <% if (typeof categories !== 'undefined') { %>
+        <% for(var i=0; i<categories.length; i++) { %>
+          <option value="<%= categories[i].id %>" <%= (typeof category !== 'undefined' && category == categories[i].id) ? 'selected' : '' %>><%= categories[i].name %></option>
+        <% } %>
+      <% } %>
+    </select>
+  </label>
+  <button type="submit">סנן</button>
+</form>
+
 <table border="1">
   <tr>
     <th>תיאור</th>
@@ -33,14 +55,14 @@
   <% } %>
 </table>
 
-<div>
+<div style="margin-top:10px;">
   <% if (typeof page !== 'undefined' && typeof totalPages !== 'undefined') { %>
     <% if (page > 1) { %>
-      <a href="/tasks?page=<%= page - 1 %>">הקודם</a>
+      <a href="/tasks?page=<%= page - 1 %><% if (typeof status !== 'undefined' && status) { %>&status=<%= status %><% } %><% if (typeof category !== 'undefined' && category) { %>&category=<%= category %><% } %>">הקודם</a>
     <% } %>
     עמוד <%= page %> מתוך <%= totalPages %>
     <% if (page < totalPages) { %>
-      <a href="/tasks?page=<%= page + 1 %>">הבא</a>
+      <a href="/tasks?page=<%= page + 1 %><% if (typeof status !== 'undefined' && status) { %>&status=<%= status %><% } %><% if (typeof category !== 'undefined' && category) { %>&category=<%= category %><% } %>">הבא</a>
     <% } %>
   <% } %>
 </div>

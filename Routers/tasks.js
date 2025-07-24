@@ -2,90 +2,125 @@ const express = require('express');
 const router = express.Router();
 const { pool } = require('../database/database');
 
-router.get('/', (req, res) => {
-  const userId = req.user_id;
-  let page = 1;
+router.get('/', function(req, res) {
+  var userId = req.user_id;
+  var page = 1;
   if (req.query.page) {
     page = parseInt(req.query.page);
-    if (isNaN(page) || page < 1) page = 1;
+    if (isNaN(page) || page < 1) {
+      page = 1;
+    }
   }
-  const perPage = 10;
-  const offset = (page - 1) * perPage;
+  var perPage = 10;
+  var offset = (page - 1) * perPage;
 
-  const sqlCount = "SELECT COUNT(*) as count FROM tasks WHERE user_id = " + userId;
-  pool.query(sqlCount, (err, countResult) => {
-    const totalTasks = countResult[0].count;
-    const totalPages = Math.ceil(totalTasks / perPage);
+  var where = " WHERE t.user_id = " + userId;
+  var status = req.query.status;
+  var category = req.query.category;
 
-    const sql = "SELECT t.*, c.name as category_name FROM tasks t LEFT JOIN categories c ON t.category_id = c.id WHERE t.user_id = " + userId + " ORDER BY t.due_date ASC LIMIT " + perPage + " OFFSET " + offset;
-    pool.query(sql, (err, results) => {
-      res.render('tasks/index', { tasks: results, page, totalPages });
+  if (status == "done") {
+    where = where + " AND t.is_done = 1";
+  } else {
+    if (status == "notdone") {
+      where = where + " AND t.is_done = 0";
+    }
+  }
+  if (category) {
+    where = where + " AND t.category_id = " + category;
+  }
+
+  var sqlCount = "SELECT COUNT(*) as count FROM tasks t" + where;
+  pool.query(sqlCount, function(err, countResult) {
+    var totalTasks = countResult[0].count;
+    var totalPages = Math.ceil(totalTasks / perPage);
+
+    var sql = "SELECT t.*, c.name as category_name FROM tasks t LEFT JOIN categories c ON t.category_id = c.id" + where + " ORDER BY t.due_date ASC LIMIT " + perPage + " OFFSET " + offset;
+    pool.query(sql, function(err, results) {
+      var sqlCat = "SELECT * FROM categories WHERE user_id = " + userId;
+      pool.query(sqlCat, function(err, categories) {
+        res.render('tasks/index', {
+          tasks: results,
+          page: page,
+          totalPages: totalPages,
+          status: status,
+          category: category,
+          categories: categories
+        });
+      });
     });
   });
 });
 
-router.get('/create', (req, res) => {
-  const userId = req.user_id;
-  const sql = "SELECT * FROM categories WHERE user_id = " + userId;
-  pool.query(sql, (err, categories) => {
-    res.render('tasks/create', { categories, error: null });
+router.get('/create', function(req, res) {
+  var userId = req.user_id;
+  var sql = "SELECT * FROM categories WHERE user_id = " + userId;
+  pool.query(sql, function(err, categories) {
+    res.render('tasks/create', { categories: categories, error: null });
   });
 });
 
-router.post('/create', (req, res) => {
-  const userId = req.user_id;
-  const { description, due_date, category_id } = req.body;
+router.post('/create', function(req, res) {
+  var userId = req.user_id;
+  var description = req.body.description;
+  var due_date = req.body.due_date;
+  var category_id = req.body.category_id;
   if (!description || !due_date || !category_id) {
-    const sql = "SELECT * FROM categories WHERE user_id = " + userId;
-    pool.query(sql, (err, categories) => {
-      res.render('tasks/create', { categories, error: 'יש למלא את כל השדות' });
+    var sql = "SELECT * FROM categories WHERE user_id = " + userId;
+    pool.query(sql, function(err, categories) {
+      res.render('tasks/create', { categories: categories, error: 'יש למלא את כל השדות' });
     });
     return;
   }
-  const sql = "INSERT INTO tasks (user_id, category_id, description, due_date) VALUES (" + userId + ", " + category_id + ", '" + description + "', '" + due_date + "')";
-  pool.query(sql, () => {
+  var sql = "INSERT INTO tasks (user_id, category_id, description, due_date) VALUES (" + userId + ", " + category_id + ", '" + description + "', '" + due_date + "')";
+  pool.query(sql, function() {
     res.redirect('/tasks');
   });
 });
 
-router.get('/edit/:id', (req, res) => {
-  const userId = req.user_id;
-  const taskId = req.params.id;
-  const sqlTask = "SELECT * FROM tasks WHERE id = " + taskId + " AND user_id = " + userId;
-  pool.query(sqlTask, (err, tasks) => {
+router.get('/edit/:id', function(req, res) {
+  var userId = req.user_id;
+  var taskId = req.params.id;
+  var sqlTask = "SELECT * FROM tasks WHERE id = " + taskId + " AND user_id = " + userId;
+  pool.query(sqlTask, function(err, tasks) {
     if (!tasks || tasks.length === 0) {
       return res.redirect('/tasks');
     }
-    const sqlCat = "SELECT * FROM categories WHERE user_id = " + userId;
-    pool.query(sqlCat, (err, categories) => {
-      res.render('tasks/edit', { task: tasks[0], categories, error: null });
+    var sqlCat = "SELECT * FROM categories WHERE user_id = " + userId;
+    pool.query(sqlCat, function(err, categories) {
+      res.render('tasks/edit', { task: tasks[0], categories: categories, error: null });
     });
   });
 });
 
-router.post('/edit/:id', (req, res) => {
-  const userId = req.user_id;
-  const taskId = req.params.id;
-  const { description, due_date, category_id, is_done } = req.body;
+router.post('/edit/:id', function(req, res) {
+  var userId = req.user_id;
+  var taskId = req.params.id;
+  var description = req.body.description;
+  var due_date = req.body.due_date;
+  var category_id = req.body.category_id;
+  var is_done = req.body.is_done;
   if (!description || !due_date || !category_id) {
-    const sqlCat = "SELECT * FROM categories WHERE user_id = " + userId;
-    pool.query(sqlCat, (err, categories) => {
-      res.render('tasks/edit', { task: { id: taskId, description, due_date, category_id, is_done }, categories, error: 'יש למלא את כל השדות' });
+    var sqlCat = "SELECT * FROM categories WHERE user_id = " + userId;
+    pool.query(sqlCat, function(err, categories) {
+      res.render('tasks/edit', { task: { id: taskId, description: description, due_date: due_date, category_id: category_id, is_done: is_done }, categories: categories, error: 'יש למלא את כל השדות' });
     });
     return;
   }
-  const done = is_done ? 1 : 0;
-  const sql = "UPDATE tasks SET description = '" + description + "', due_date = '" + due_date + "', category_id = " + category_id + ", is_done = " + done + " WHERE id = " + taskId + " AND user_id = " + userId;
-  pool.query(sql, () => {
+  var done = 0;
+  if (is_done) {
+    done = 1;
+  }
+  var sql = "UPDATE tasks SET description = '" + description + "', due_date = '" + due_date + "', category_id = " + category_id + ", is_done = " + done + " WHERE id = " + taskId + " AND user_id = " + userId;
+  pool.query(sql, function() {
     res.redirect('/tasks');
   });
 });
 
-router.post('/delete/:id', (req, res) => {
-  const userId = req.user_id;
-  const taskId = req.params.id;
-  const sql = "DELETE FROM tasks WHERE id = " + taskId + " AND user_id = " + userId;
-  pool.query(sql, () => {
+router.post('/delete/:id', function(req, res) {
+  var userId = req.user_id;
+  var taskId = req.params.id;
+  var sql = "DELETE FROM tasks WHERE id = " + taskId + " AND user_id = " + userId;
+  pool.query(sql, function() {
     res.redirect('/tasks');
   });
 });
