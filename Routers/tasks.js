@@ -116,6 +116,15 @@ router.post('/edit/:id', function(req, res) {
   });
 });
 
+router.post('/done/:id', function(req, res) {
+  var userId = req.user_id;
+  var taskId = req.params.id;
+  var sql = "UPDATE tasks SET is_done = 1 WHERE id = " + taskId + " AND user_id = " + userId;
+  pool.query(sql, function() {
+    res.redirect('/tasks');
+  });
+});
+
 router.post('/delete/:id', function(req, res) {
   var userId = req.user_id;
   var taskId = req.params.id;
