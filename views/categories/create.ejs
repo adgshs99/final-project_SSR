@@ -1,10 +1,16 @@
-<%- include('../layout') %>
+<%- include('../partials/header') %>
+
 <h2>הוספת קטגוריה</h2>
+
 <% if (error) { %>
   <div style="color:red"><%= error %></div>
 <% } %>
+
 <form method="POST" action="/categories/create">
   <input type="text" name="name" placeholder="שם קטגוריה" required>
   <button type="submit">שמור</button>
 </form>
+
 <a href="/categories">חזרה</a>
+
+<%- include('../partials/footer') %>

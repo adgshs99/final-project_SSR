@@ -1,14 +1,20 @@
-<%- include('../layout') %>
+<%- include('../partials/header') %>
+
 <div class="container">
   <h2>הרשמה</h2>
+
   <% if (error) { %>
     <div style="color:red"><%= error %></div>
   <% } %>
+
   <form method="POST" action="/register">
     <input type="text" name="name" placeholder="שם מלא" required><br>
     <input type="text" name="username" placeholder="שם משתמש" required><br>
     <input type="password" name="password" placeholder="סיסמה" required><br>
     <button type="submit">הרשם</button>
   </form>
+
   <a href="/login">להתחברות</a>
 </div>
+
+<%- include('../partials/footer') %>
