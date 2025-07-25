@@ -29,7 +29,8 @@ router.post('/login', async (req, res) => {
     res.cookie("ImLoggedToTasks", token, {
         maxAge: 31 * 24 * 60 * 60 * 1000,
     });
-    res.redirect('/dashboard');
+    res.redirect('/tasks');
+
 });
 
 router.get('/logout', (req, res) => {

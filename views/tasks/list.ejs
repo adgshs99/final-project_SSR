@@ -1,0 +1,74 @@
+<%- include('../partials/header') %>
+
+<h2>רשימת משימות</h2>
+<a href="/tasks/create">הוסף משימה</a>
+
+<form method="get" action="/tasks">
+  סטטוס:
+  <select name="status">
+    <option value="">הכל</option>
+    <option value="done" <%= status == "done" ? "selected" : "" %>>בוצע</option>
+    <option value="notdone" <%= status == "notdone" ? "selected" : "" %>>לא בוצע</option>
+  </select>
+
+  קטגוריה:
+  <select name="category">
+    <option value="">הכל</option>
+    <% for (var i = 0; i < categories.length; i++) { %>
+      <% var cat = categories[i]; %>
+      <option value="<%= cat.id %>" <%= category == cat.id ? "selected" : "" %>><%= cat.name %></option>
+    <% } %>
+  </select>
+
+  <button type="submit">סנן</button>
+</form>
+
+<table border="1">
+  <tr>
+    <th>תיאור</th>
+    <th>תאריך יעד</th>
+    <th>קטגוריה</th>
+    <th>בוצע</th>
+    <th>סמן בוצע</th>
+    <th>עריכה</th>
+    <th>מחיקה</th>
+  </tr>
+  <% for (var i = 0; i < tasks.length; i++) { %>
+    <% var t = tasks[i]; %>
+    <tr>
+      <td><%= t.description %></td>
+      <td><%= t.due_date %></td>
+      <td><%= t.category_name %></td>
+      <td>
+        <% if (t.is_done) { %> כן <% } else { %> לא <% } %>
+      </td>
+      <td>
+        <% if (!t.is_done) { %>
+          <form method="POST" action="/tasks/done/<%= t.id %>" style="display:inline;">
+            <button type="submit">בוצע</button>
+          </form>
+        <% } %>
+      </td>
+      <td><a href="/tasks/edit/<%= t.id %>">ערוך</a></td>
+      <td>
+        <form method="POST" action="/tasks/delete/<%= t.id %>" style="display:inline;">
+          <button type="submit" onclick="return confirm('למחוק?')">מחק</button>
+        </form>
+      </td>
+    </tr>
+  <% } %>
+</table>
+
+<% if (page && totalPages) { %>
+  <div style="margin-top:10px;">
+    <% if (page > 1) { %>
+      <a href="/tasks?page=<%= page - 1 %>">הקודם</a>
+    <% } %>
+    עמוד <%= page %> מתוך <%= totalPages %>
+    <% if (page < totalPages) { %>
+      <a href="/tasks?page=<%= page + 1 %>">הבא</a>
+    <% } %>
+  </div>
+<% } %>
+
+<%- include('../partials/footer') %>
